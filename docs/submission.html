@@ -1,0 +1,735 @@
+<meta charset="utf-8">
+<title>Okafor-Lindqvist Workpaper Submission</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky top nav, one routed page at a time (#home, #workpaper, #core-idea, #errors, #architecture, #video), prev/next footer. */
+:root {
+  --bg: #f5f6f7; --surface: #ffffff; --sunk: #eef0f2; --fg: #18202a; --fg2: #475260; --muted: #77818d; --line: #e2e5e9;
+  --accent: #1f5c4d; --accent-soft: #e8f1ee; --up: #b42318; --up-soft: #fdeeec; --down: #18794e; --down-soft: #e9f6ef; --warn: #9a5b07;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111418; --surface: #181c21; --sunk: #21262d; --fg: #e6e9ed; --fg2: #b3bbc5; --muted: #848e9a; --line: #2a3038;
+  --accent: #6cc0a5; --accent-soft: #1b2b27; --up: #f2877c; --up-soft: #2e1c1b; --down: #6fcf98; --down-soft: #17271f; --warn: #e6a545; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111418; --surface: #181c21; --sunk: #21262d; --fg: #e6e9ed; --fg2: #b3bbc5; --muted: #848e9a; --line: #2a3038;
+  --accent: #6cc0a5; --accent-soft: #1b2b27; --up: #f2877c; --up-soft: #2e1c1b; --down: #6fcf98; --down-soft: #17271f; --warn: #e6a545; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 var(--sans); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+header.bar .wrap { display: flex; align-items: center; gap: 20px; padding-block: 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--fg); text-decoration: none; font-weight: 600; font-size: 14px; }
+.logo { width: 26px; height: 26px; border-radius: 6px; background: var(--accent); color: var(--surface); display: grid; place-items: center; font-weight: 600; font-size: 14px; }
+nav.top { display: flex; gap: 2px; flex-wrap: wrap; margin-left: auto; }
+nav.top a { color: var(--fg2); text-decoration: none; font-size: 13.5px; padding: 6px 10px; border-radius: 6px; }
+nav.top a:hover { background: var(--sunk); color: var(--fg); }
+nav.top a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+main { padding-block: 36px 24px; }
+.page { display: grid; gap: 28px; animation: in .2s ease; }
+@keyframes in { from { opacity: .4; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .page, .ar, .node { animation: none !important; transition: none !important; } }
+h1, h2, h3 { margin: 0; text-wrap: balance; line-height: 1.25; }
+h1 { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+h2 { font-size: 19px; font-weight: 600; }
+h3 { font-size: 15px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+.eyebrow { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--fg2); font-size: 16px; }
+.head { display: grid; gap: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: grid; gap: 12px; min-width: 0; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.btn { font: inherit; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px; padding: 8px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; text-decoration: none; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 13px; border: 0; background: none; color: var(--fg2); padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.up { color: var(--up); } .down { color: var(--down); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Home */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: grid; gap: 2px; }
+.stat small { color: var(--muted); font-size: 12.5px; }
+.stat b { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.stat .from { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.deliv { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.deliv a { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; text-decoration: none; color: var(--fg); display: grid; gap: 6px; align-content: start; transition: border-color .15s, transform .15s; }
+.deliv a:hover { border-color: var(--accent); transform: translateY(-1px); }
+.deliv .n { font: 500 12px var(--mono); color: var(--accent); }
+.deliv span:last-child { color: var(--muted); font-size: 13.5px; }
+
+/* Workpaper */
+.url { font-family: var(--mono); font-size: 14px; overflow-wrap: anywhere; }
+.callout { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 18px 20px; display: grid; gap: 10px; }
+.roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.roles button { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 6px; padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; }
+.roles button small { color: var(--muted); font-size: 12px; }
+.roles button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.perm { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 18px; list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.perm li { display: flex; gap: 8px; align-items: baseline; }
+.perm li::before { content: "✓"; color: var(--down); font-weight: 600; width: 12px; }
+.perm li.no { color: var(--muted); } .perm li.no::before { content: "–"; color: var(--muted); }
+ol.tour { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: t; }
+ol.tour li { counter-increment: t; display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+ol.tour li:last-child { border-bottom: 0; }
+ol.tour li::before { content: counter(t); width: 24px; height: 24px; border-radius: 50%; background: var(--sunk); color: var(--fg2); display: grid; place-items: center; font: 500 12px var(--mono); }
+ol.tour li > div { display: grid; gap: 2px; min-width: 0; } ol.tour small { color: var(--muted); font-size: 13.5px; }
+
+/* Core idea */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tabs button { font: inherit; font-size: 14px; border: 0; background: none; color: var(--fg2); padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); font-weight: 500; }
+.layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.layers button { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; padding: 14px; cursor: pointer; display: grid; gap: 4px; position: relative; }
+.layers button small { color: var(--muted); font-size: 12.5px; }
+.layers button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.layers .tag { font: 500 11px var(--mono); color: var(--accent); }
+.fields { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; font-size: 14px; }
+.fields li { display: grid; grid-template-columns: minmax(130px, 220px) 1fr; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.fields li:last-child { border-bottom: 0; }
+.fields code { color: var(--fg); }
+.fields span { color: var(--fg2); }
+.fold { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; }
+.events { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.events label { display: grid; grid-template-columns: 18px 28px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; background: var(--surface); font-size: 14px; }
+.events label:hover { border-color: var(--accent); }
+.events input { margin-top: 3px; accent-color: var(--accent); }
+.events .seq { font: 500 12px var(--mono); color: var(--muted); padding-top: 2px; }
+.events .who { color: var(--muted); font-size: 12.5px; display: block; }
+.events label.off { opacity: .55; }
+.out { background: var(--sunk); border-radius: 8px; padding: 16px; display: grid; gap: 12px; align-content: start; }
+.out .big { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; }
+.kv > span:nth-child(odd) { color: var(--fg2); }
+.kv > .pill { justify-self: end; align-self: center; white-space: normal; text-align: right; }
+.pill { display: inline-block; font-size: 12px; font-weight: 500; padding: 1px 9px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); color: var(--fg2); white-space: nowrap; }
+.pill.ok { background: var(--down-soft); border-color: transparent; color: var(--down); }
+.pill.warn { background: var(--up-soft); border-color: transparent; color: var(--up); }
+.pill.prop { color: var(--warn); }
+
+/* Errors */
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.filters input[type=search] { font: inherit; font-size: 14px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--surface); color: var(--fg); min-width: 0; flex: 1 1 180px; max-width: 280px; }
+.chart { position: relative; overflow-x: auto; }
+.chart svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.chart .lbl { fill: var(--fg2); font: 12px var(--sans); }
+.chart .val { fill: var(--fg); font: 500 12px var(--sans); font-variant-numeric: tabular-nums; }
+.chart .axis { stroke: var(--muted); }
+.chart .grid { stroke: var(--line); }
+.chart .val.in { fill: var(--surface); }
+.chart .bar-up { fill: var(--up); } .chart .bar-down { fill: var(--down); }
+.chart .hit { fill: transparent; cursor: pointer; }
+.chart .hit:hover { fill: var(--sunk); }
+.tip { position: absolute; pointer-events: none; background: var(--fg); color: var(--bg); font-size: 12.5px; padding: 8px 10px; border-radius: 6px; max-width: 260px; opacity: 0; transition: opacity .1s; z-index: 2; }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--fg2); flex-wrap: wrap; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.list { display: grid; gap: 8px; }
+.err { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.err > button { font: inherit; width: 100%; text-align: left; border: 0; background: none; color: var(--fg); cursor: pointer; padding: 14px 16px; display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: baseline; }
+.err .k { font: 500 12px var(--mono); color: var(--muted); }
+.err .t { font-weight: 500; }
+.err .t small { display: block; color: var(--muted); font-weight: 400; font-size: 12.5px; }
+.err .fx { font-size: 13px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.err .body { padding: 0 16px 16px 58px; display: grid; gap: 8px; font-size: 14px; color: var(--fg2); }
+.err .body b { color: var(--fg); font-weight: 500; }
+.err[data-open="true"] { border-color: var(--accent); }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; color: var(--fg2); }
+
+/* Architecture */
+figure { margin: 0; }
+.dia { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; padding: 12px; }
+.dia svg { display: block; width: 100%; min-width: 860px; height: auto; color: var(--muted); }
+.node rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; transition: stroke .15s, fill .15s; }
+.node { cursor: pointer; }
+.node:hover rect, .node.sel rect { stroke: var(--accent); }
+.node.lit rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.node .t { fill: var(--fg); font: 600 13px var(--sans); }
+.node .s { fill: var(--muted); font: 12px var(--sans); }
+.h { fill: var(--muted); font: 500 11px var(--sans); letter-spacing: .08em; }
+.lb { fill: var(--fg2); font: 500 11px var(--sans); }
+.ar { fill: none; stroke: currentColor; stroke-width: 1.4; transition: stroke .15s, stroke-width .15s; }
+.ar.lit { stroke: var(--accent); stroke-width: 2.6; }
+.detail { display: grid; gap: 6px; }
+.stepper { display: grid; gap: 12px; }
+.stepper .ctrl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stepper .now { font-size: 15px; min-height: 48px; }
+.stepper .now b { font-weight: 600; }
+.dots { display: flex; gap: 6px; }
+.dots button { width: 10px; height: 10px; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; padding: 0; }
+.dots button[aria-current="step"] { background: var(--accent); }
+
+/* Video */
+.video { aspect-ratio: 16 / 9; max-width: 100%; background: var(--sunk); border: 1px dashed var(--line); border-radius: 8px; display: grid; place-items: center; text-align: center; color: var(--muted); padding: 20px; }
+.chapters { list-style: none; margin: 0; padding: 0; }
+.chapters li { display: grid; grid-template-columns: 90px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.chapters li:last-child { border-bottom: 0; }
+.chapters time { font: 500 13px var(--mono); color: var(--accent); }
+.chapters small { display: block; color: var(--muted); font-size: 13px; }
+
+/* Footer pager */
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.pager a { text-decoration: none; display: grid; gap: 2px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; }
+.pager a:hover { border-color: var(--accent); }
+.pager small { color: var(--muted); font-size: 12px; }
+.pager .next { margin-left: auto; text-align: right; }
+
+@media (max-width: 720px) {
+  h1 { font-size: 25px; }
+  .fold { grid-template-columns: 1fr; }
+  .fields li { grid-template-columns: 1fr; gap: 2px; }
+  .err > button { grid-template-columns: 26px 1fr; } .err .fx { grid-column: 2; text-align: left; }
+  .err .body { padding-left: 16px; }
+  nav.top { margin-left: 0; }
+}
+</style>
+
+<header class="bar"><div class="wrap">
+  <a class="brand" href="#home"><span class="logo">M</span>Okafor-Lindqvist workpaper</a>
+  <nav class="top" aria-label="Pages">
+    <a href="#home">Overview</a>
+    <a href="#workpaper">1 · Workpaper</a>
+    <a href="#core-idea">2 · Core idea</a>
+    <a href="#errors">3 · Errors</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#video">4 · Video</a>
+  </nav>
+</div></header>
+
+<main class="wrap" id="main" tabindex="-1"></main>
+
+<script>
+const APP = 'https://claude.ai/artifact/27ac7ocfPm2gczJSzNFXxu';
+const VIDEO = ''; // paste the walkthrough link here
+
+const fmt = (n) => (n < 0 ? '−' : n > 0 ? '+' : '') + Math.abs(n).toLocaleString('en-US');
+const cls = (n) => n > 0 ? 'up' : n < 0 ? 'down' : '';
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ---------------------------------------------------------------- data
+const ERRORS = [
+  { n: 1, kind: 'engine', short: 'RSU zero basis', title: 'RSU sales taxed with zero basis', fed: -15536, ca: -1618,
+    what: 'Three noncovered lots (N1, N3, N4) used the broker’s blank basis. The stock-plan supplement gives 19,100 / 19,100 / 9,420, so W-2 vest income was taxed twice.',
+    how: 'Matches supplement lots to Form 8949 lots by acquisition date. The engine only matched the ESPP lot.' },
+  { n: 2, kind: 'engine', short: '1099-K double count', title: 'Form 1099-K counted twice', fed: -4402, ca: -384,
+    what: 'Gross receipts 163,700 = books 151,300 + 1099-K 12,400. The 12,400 is Atlas paying by card, already deposited, booked, and inside Atlas’s 1099-NEC.',
+    how: 'Reconciles 1099-NECs (142,000) + no-1099 clients (9,300) to books 151,300. The card amount equals the deposit detail.' },
+  { n: 3, kind: 'engine', short: 'CA wages incl. Texas', title: 'California-source wages include Texas-period pay', fed: 0, ca: -5685,
+    what: 'Engine used W-2 box 16 (218,400). The employer kept CA as the work state through 09/30 by mistake.',
+    how: 'Reads the W-2 text and the 07/18 paystub: CA wages at the move were 22,469, so CA-source wages are 129,569.' },
+  { n: 4, kind: 'extraction', short: 'Mileage page twice', title: 'Mileage log page counted twice', fed: 919, ca: 80,
+    what: 'Page 3 is a second scan of page 2. Business miles are 8,100, not 11,800.',
+    how: 'Compares per-page trip signatures (date, destination, miles), then checks against the odometer.' },
+  { n: 5, kind: 'engine', short: 'Q4 estimate from memory', title: 'Federal Q4 estimate taken from the client’s memory', fed: 0, ca: 0, pay: 'Federal payments −1,000',
+    what: 'The engine used “4,000 I think”. The IRS transcript shows 3,000 on 01/15/2026.',
+    how: 'Agrees payments to the IRS transcript; EFTPS confirms only three payments.' },
+  { n: 6, kind: 'engine', short: 'CA payment for 2024', title: 'CA estimates include a payment applied to 2024', fed: 0, ca: 0, pay: 'CA payments −3,500',
+    what: 'The 09/15/2025 Web Pay payment (3,500) was designated tax year 2024 and is held by the FTB as a 2024 credit.',
+    how: 'Agrees to the FTB account and the payment’s designated-year field.' },
+  { n: 7, kind: 'extraction', short: 'Interest twice', title: 'Same interest counted twice', fed: -640, ca: -127,
+    what: 'The bank 1099-INT is the sweep inside the brokerage account ending 7731, already on the composite.',
+    how: 'Equal amounts plus a shared account number in both printed texts. 2024 reported it once.' },
+  { n: 8, kind: 'engine', short: 'Old FX rate', title: 'Swedish interest at the 2024 FX rate', fed: 43, ca: 9,
+    what: 'Converted at 10.56 (2024). The 2025 average is 9.86: 1,871, not 1,747.',
+    how: 'Flags any FX source whose year differs from the tax year.' },
+  { n: 9, kind: 'extraction', short: 'Page 32 unread', title: 'Broker page 32 never read', fed: -21, ca: -2,
+    what: 'Lot M18 (proceeds 250, basis 310) is missing. Summary 71,965 vs lots 71,715.',
+    how: 'Parses unread pages named in the extraction notes and reconciles lots to the printed summary.' },
+  { n: 10, kind: 'engine', short: 'Payoff interest twice', title: 'Payoff interest double-counted', fed: 559, ca: 103,
+    what: 'Lonestar’s 1098 already includes the payoff interest; the engine added the payoff statement’s 2,150 again.',
+    how: 'The payoff statement’s own text says so.' },
+  { n: 11, kind: 'engine', short: 'Seller’s property tax', title: 'Property tax includes the seller’s share', fed: 1462, ca: 332,
+    what: 'The seller credited 6,912 at closing for 01/01–07/07, so only 6,508 is deductible.',
+    how: 'Buyer closing statement vs the 1098 escrow amount.' },
+  { n: 12, kind: 'engine', short: 'Car at Blue Book', title: 'Donated car at Blue Book, not sale proceeds', fed: 806, ca: 149,
+    what: 'Deducted at 6,000. The 1098-C shows an arm’s-length sale for 2,900.',
+    how: 'Checks the 1098-C box 4a/4c rule. This later becomes an examination item.' },
+  { n: 13, kind: 'extraction', short: 'Care TIN misread', title: 'Care provider TIN misread', fed: 0, ca: 0, pay: 'Form accuracy',
+    what: 'Read as 74-3829516 at 97% confidence. The statement prints 74-3829156.',
+    how: 'Every EIN is checked against the printed text, with a transposition match.' },
+  { n: 14, kind: 'extraction', short: 'Wrong provider name', title: 'Wrong provider name on Form 2441', fed: 0, ca: 0, pay: 'Form accuracy',
+    what: '“Bright Oak Preschool”. The statement and the 2024 return say Bright Oak Kids Club.',
+    how: 'Compares the label to the document text.' },
+  { n: 15, kind: 'extraction', short: 'Theo’s SSN', title: 'Theo’s SSN transposed in the organizer', fed: 0, ca: 0, pay: 'E-file reject',
+    what: '…3309 instead of …3390. In the real season this caused the 07/13 e-file rejection.',
+    how: 'Dependents checked against the prior-year return. The filing gate blocks transmission until corrected.' },
+  { n: 16, kind: 'judgment', short: 'SE health insurance', title: 'SE health insurance deducted while eligible for spouse’s plan', fed: 4464, ca: 605,
+    what: '14,400 deducted although Erik could join Ngozi’s employer family plan (IRC 162(l)(2)(B)). 2024 took none.',
+    how: 'Client questionnaire answer plus prior-year notes.' },
+  { n: 17, kind: 'judgment', short: 'HVAC expensed', title: 'HVAC replacement expensed', fed: 3633, ca: 896,
+    what: 'Whole system replaced with a heat pump under permit: capitalize over 27.5 years (Reg. 1.263(a)-3).',
+    how: 'Permit, call notes, and the engine’s own what-if result.' },
+  { n: 18, kind: 'judgment', short: 'Crypto C6 basis', title: 'Crypto lot C6 at zero basis and short-term', fed: -1312, ca: -104,
+    what: 'The client’s bank record shows 3,050 paid on 03/15/2021, making it long-term.',
+    how: 'Client message with bank record.' },
+  { n: 19, kind: 'judgment', short: 'Phone & internet 100%', title: 'Family phone and home internet at 100%', fed: 464, ca: 41,
+    what: 'Call notes say 70% and 50% business use.',
+    how: 'Books detail and call notes.' },
+  { n: 20, kind: 'judgment', short: 'Spotify Family', title: 'Spotify Family in business software', fed: 77, ca: 7,
+    what: 'The client confirmed it is personal.',
+    how: 'Books detail and call notes.' },
+];
+const KIND = { engine: 'Engine error', extraction: 'Extraction error', judgment: 'Judgment call' };
+
+const ROLES = [
+  { id: 'prep', name: 'Priya', role: 'Preparer', can: ['Propose adjustments', 'Verify figures', 'Ask the client', 'Preparer sign-off', 'See full SSNs (logged)'], cannot: ['Approve adjustments', 'Transmit the return'] },
+  { id: 'rev', name: 'Daniel', role: 'Reviewer', can: ['Approve adjustments up to $1,000', 'Write review notes', 'Reviewer sign-off', 'See full SSNs (logged)'], cannot: ['Approve own adjustments', 'Approve over $1,000'] },
+  { id: 'ptr', name: 'Helen', role: 'Partner', can: ['Approve any adjustment', 'Partner sign-off', 'Present to client', 'Transmit the return'], cannot: ['Approve own adjustments'] },
+  { id: 'nc', name: 'Marcus', role: 'Preparer, no clearance', can: ['Work findings and documents', 'Propose adjustments'], cannot: ['See SSNs or account numbers (masked)', 'Approve adjustments'] },
+  { id: 'adm', name: 'Firm admin', role: 'Administrator', can: ['Set firm thresholds', 'Assign staff', 'Load or reset demo data'], cannot: ['Change return figures'] },
+  { id: 'qr', name: 'Quality reviewer', role: 'Quality review', can: ['Read everything', 'Write review notes'], cannot: ['Change figures', 'Sign off'] },
+  { id: 'cl', name: 'Ngozi', role: 'Client', can: ['Answer questions', 'Approve the return', 'Sign Form 8879'], cannot: ['See staff notes', 'See the workpaper internals'] },
+  { id: 'irs', name: 'IRS examiner', role: 'Examiner', can: ['Read the shared examination record'], cannot: ['Change anything', 'See internal discussion'] },
+];
+
+const LAYERS = {
+  packet: { tag: 'immutable', name: 'Packet', sub: 'Loaded exactly as delivered', fields: [
+    ['documents[].pages', 'What is really printed on each page'],
+    ['extracted_values (ev-NNNN)', 'What the pipeline read, with confidence and position. Can be wrong.'],
+    ['return_versions v1–v3', 'Engine lines {key, rule, inputs[], sources[]}. Can be wrong.'],
+    ['client · prior_years · agency', 'Questionnaire answers, the 2024 return, IRS and FTB transcripts'],
+    ['timeline · firm', 'Dated season events, staff, deadlines and budgets'] ] },
+  index: { tag: 'built at load', name: 'Index', sub: 'Links every reference to its source', fields: [
+    ['resolveRef(ref)', 'One resolver for every reference format in the packet'],
+    ['usedBy: ref → lines', 'Any document → every line it landed on'],
+    ['lineClosure / dependents', 'Walk a line’s inputs, or everything downstream of it'] ] },
+  journal: { tag: 'append-only', name: 'Journal', sub: 'Every human judgment, as an event', fields: [
+    ['{id, seq, at, clock, actor, type, payload}', 'Shape of every event'],
+    ['adjust.propose / approve / reject', 'Original kept, who, why, authority, tax effect'],
+    ['signoff {scope, level, fingerprint}', 'A hash of everything the sign-off covered'],
+    ['note · finding.status · doc.disposition', 'Questions, review notes and decisions'],
+    ['filing.present / sign8879 / submit / freeze', 'The filing lifecycle'],
+    ['undo', 'Lists the events it reverses. Nothing is deleted.'] ] },
+  derived: { tag: 'pure functions', name: 'Derived', sub: 'Recomputed on every change', fields: [
+    ['findings = runChecks(packet, version, clock)', 'Independent recomputes, never trusting engine lines'],
+    ['line value', 'Engine value + latest active adjustment'],
+    ['adjusted totals', 'Engine summary + Σ(change × version’s per-dollar rate)'],
+    ['sign-off state', 'Stored fingerprint vs current → fresh or reopened, with reason'],
+    ['blockers', 'The firm’s 12 required steps, evaluated from state'] ] },
+};
+
+const PILLARS = [
+  ['Provenance', 'Click any number to see the rule that built it, its inputs, and the exact field on the exact page it came from. Every document lists each line it landed on, or why it landed nowhere.'],
+  ['Independent checks', 'Thirty checks recompute figures from raw records: printed text, agency transcripts, client answers, last year’s return. A disagreement becomes a finding with the evidence and a ready-made adjustment.'],
+  ['Append-only journal', 'Every human judgment is an event. The pipeline output is never edited. The workpaper you see is fold(packet, journal), so undo, history, freeze-at-filing and season replay all come from the same mechanism.'],
+];
+
+// The fold demo: a tiny event log you can toggle, folded live.
+const DEMO = [
+  { id: 1, who: 'Priya · preparer', text: 'Proposes RSU basis adjustment', type: 'propose', adj: 'rsu', fed: -15536 },
+  { id: 2, who: 'Daniel · reviewer', text: 'Approves the RSU adjustment', type: 'approve', adj: 'rsu', level: 'reviewer' },
+  { id: 3, who: 'Daniel · reviewer', text: 'Signs off the Investments area', type: 'signoff' },
+  { id: 4, who: 'Helen · partner', text: 'Approves the RSU adjustment', type: 'approve', adj: 'rsu', level: 'partner' },
+  { id: 5, who: 'Priya · preparer', text: 'Proposes crypto lot C6 basis', type: 'propose', adj: 'c6', fed: -1312 },
+];
+
+// ---------------------------------------------------------------- pages
+const PAGES = ['home', 'workpaper', 'core-idea', 'errors', 'architecture', 'video'];
+const TITLES = { home: 'Overview', workpaper: 'The working workpaper', 'core-idea': 'Core idea and data model', errors: 'Errors found', architecture: 'Architecture', video: 'Video walkthrough' };
+
+const views = {
+  home: () => `
+    <div class="head">
+      <span class="eyebrow">Case study · Redesign the tax workpaper</span>
+      <h1>Every number carries its own proof</h1>
+      <p class="lede">A web-native workpaper for the Okafor-Lindqvist 2025 federal and California return, built from the pipeline packet exactly as delivered.</p>
+      <div class="row" style="margin-top:8px"><a class="btn primary" href="${APP}" target="_blank" rel="noopener">Open the workpaper ↗</a><a class="btn" href="#errors">See what it caught</a></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>Issues the engine missed</small><b>20</b><span class="from">15 errors · 5 silent judgment calls</span></div>
+      <div class="stat"><small>Federal total tax</small><b class="down">72,478</b><span class="from">engine said 81,962</span></div>
+      <div class="stat"><small>Federal balance</small><b class="down">4,264 refund</b><span class="from">engine said 4,220 due</span></div>
+      <div class="stat"><small>California refund</small><b class="down">10,454</b><span class="from">engine said 8,256</span></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr">
+      <h2>Deliverables</h2>
+      <div class="deliv">
+        <a href="#workpaper"><span class="n">1</span><b>The working workpaper</b><span>Runs from a link, saves everything, eight roles</span></a>
+        <a href="#core-idea"><span class="n">2</span><b>Core idea and data model</b><span>Try the event fold yourself</span></a>
+        <a href="#errors"><span class="n">3</span><b>Errors found</b><span>Filter, sort and chart all 20</span></a>
+        <a href="#video"><span class="n">4</span><b>Video walkthrough</b><span>Decisions and tradeoffs</span></a>
+      </div>
+    </div>`,
+
+  workpaper: () => `
+    <div class="head"><span class="eyebrow">Deliverable 1</span><h1>The working workpaper</h1>
+      <p class="lede">Loads the packet as delivered, saves every action, and lets you switch between eight people to see the same return from each seat.</p></div>
+    <div class="callout"><b>Open the app</b><a class="url" href="${APP}" target="_blank" rel="noopener">${APP}</a>
+      <span style="font-size:14px;color:var(--fg2)">Switch person from the menu at the top right. For a season already in progress, go to <b>Firm → Data → Load demo history</b>.</span></div>
+    <section class="card">
+      <h2>Roles</h2>
+      <p style="color:var(--fg2);font-size:14px">Permissions are checked inside every action, not just by hiding buttons. Pick a role to see what it can do.</p>
+      <div class="roles" id="roles">${ROLES.map((r, i) => `<button data-role="${r.id}" aria-pressed="${i === 0}"><b>${r.name}</b><small>${r.role}</small></button>`).join('')}</div>
+      <ul class="perm" id="perm"></ul>
+    </section>
+    <section class="card">
+      <h2>A five-minute tour</h2>
+      <ol class="tour">
+        <li><div><b>Overview</b><small>Return summary: 2024 vs engine vs workpaper. Click any number to trace it.</small></div></li>
+        <li><div><b>Findings</b><small>Open “RSU sales taxed with zero basis” and choose Propose adjustment.</small></div></li>
+        <li><div><b>Switch to Daniel, then Helen</b><small>The reviewer approves; changes over $1,000 still need the partner.</small></div></li>
+        <li><div><b>Season clock</b><small>Step through the season. Documents, versions and messages appear as of each date.</small></div></li>
+        <li><div><b>Filing</b><small>Partner sign-off, client approval and Form 8879. Theo’s SSN blocks transmission until fixed; then the return freezes.</small></div></li>
+      </ol>
+    </section>
+    <section class="card">
+      <h2>Run it locally</h2>
+      <p style="font-size:14px;color:var(--fg2)">Static files, no build step, no dependencies.</p>
+      <code style="background:var(--sunk);padding:10px 12px;border-radius:6px;overflow-x:auto;display:block">cd workpaper &amp;&amp; python3 -m http.server 8001</code>
+    </section>`,
+
+  'core-idea': () => `
+    <div class="head"><span class="eyebrow">Deliverable 2</span><h1>Core idea and data model</h1>
+      <p class="lede">A spreadsheet workpaper keeps numbers in one place and proof somewhere else. Here the unit is a <b>claim</b>, and each claim brings its proof with it.</p></div>
+    <section class="card">
+      <div class="tabs" role="tablist">${PILLARS.map((p, i) => `<button role="tab" data-pillar="${i}" aria-selected="${i === 0}">${p[0]}</button>`).join('')}</div>
+      <p id="pillar" style="font-size:15px"></p>
+    </section>
+    <section class="card">
+      <h2>Data model</h2>
+      <p style="color:var(--fg2);font-size:14px">Four layers. Only the journal is ever written to. Select a layer.</p>
+      <div class="layers" id="layers">${Object.entries(LAYERS).map(([k, l], i) => `<button data-layer="${k}" aria-pressed="${i === 2}"><span class="tag">${l.tag}</span><b>${l.name}</b><small>${l.sub}</small></button>`).join('')}</div>
+      <ul class="fields" id="fields"></ul>
+    </section>
+    <section class="card">
+      <h2>Try the fold</h2>
+      <p style="color:var(--fg2);font-size:14px">The screen is always <code>fold(packet, journal)</code>. Untick an event to undo it and watch the state recompute, including the sign-off reopening when something it covered changes.</p>
+      <div class="fold">
+        <ul class="events" id="events">${DEMO.map(e => `<li><label><input type="checkbox" checked data-ev="${e.id}"><span class="seq">#${e.id}</span><span>${e.text}<span class="who">${e.who}</span></span></label></li>`).join('')}</ul>
+        <div class="out" id="foldout" aria-live="polite"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Tradeoffs</h2>
+      <ul class="plain">
+        <li><b>No backend.</b> The journal lives in the browser, with live sync between tabs. One append-only server API would replace it without changing the event model.</li>
+        <li><b>No engine rerun.</b> Tax effect is change × the version’s per-dollar rate, labelled as an estimate. Engine what-ifs are used where they exist.</li>
+        <li><b>No build step.</b> Plain JavaScript modules, so the packet loads as delivered and the folder deploys as-is. The cost is hand-written rendering.</li>
+      </ul>
+    </section>`,
+
+  errors: () => `
+    <div class="head"><span class="eyebrow">Deliverable 3</span><h1>Errors found, and how the design surfaced them</h1>
+      <p class="lede">Each one is caught by an independent check that recomputes the figure from source records and opens a finding with the evidence and a proposed adjustment. Effects are at v3 per-dollar rates; positive means more tax.</p></div>
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>Tax effect by issue</h2>
+        <div class="seg" id="jur"><button data-j="fed" aria-pressed="true">Federal</button><button data-j="ca" aria-pressed="false">California</button></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--down)"></i>Lowers tax</span><span><i style="background:var(--up)"></i>Raises tax</span><span>Issues with no tax effect are listed below</span></div>
+      <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+    </section>
+    <section class="grid" style="grid-template-columns:1fr;gap:12px">
+      <div class="filters">
+        <div class="seg" id="kind"><button data-k="all" aria-pressed="true">All 20</button><button data-k="engine" aria-pressed="false">Engine</button><button data-k="extraction" aria-pressed="false">Extraction</button><button data-k="judgment" aria-pressed="false">Judgment</button></div>
+        <div class="seg" id="sort"><button data-s="n" aria-pressed="true">By number</button><button data-s="fx" aria-pressed="false">By size</button></div>
+        <input type="search" id="q" placeholder="Search issues" aria-label="Search issues">
+      </div>
+      <div class="list" id="list"></div>
+    </section>
+    <section class="card">
+      <h2>Net effect if all are adopted</h2>
+      <div class="tbl" style="border:0"><table><thead><tr><th></th><th class="r">Engine v3</th><th class="r">Workpaper</th></tr></thead><tbody>
+        <tr><td>Federal total tax</td><td class="r">81,962</td><td class="r">72,478</td></tr>
+        <tr><td>Federal balance</td><td class="r">4,220 due</td><td class="r">4,264 refund</td></tr>
+        <tr><td>California total tax</td><td class="r">18,874</td><td class="r">13,176</td></tr>
+        <tr><td>California refund</td><td class="r">8,256</td><td class="r">10,454</td></tr>
+      </tbody></table></div>
+    </section>
+    <div class="grid">
+      <section class="card"><h3>Where the engine was right and the client was not</h3><ul class="plain">
+        <li><b>IRA basis.</b> Client said none; the 2024 Form 8606 shows 7,000.</li>
+        <li><b>“Did you sell investments? No.”</b> There were 295 sales.</li>
+        <li><b>Church receipt</b> read as “$?,500” at 41% confidence; settled by the client’s confirmation and the bank check.</li></ul></section>
+      <section class="card"><h3>Outside filings and gaps flagged</h3><ul class="plain">
+        <li>FBAR 2025 and Form 3520 for the 2023 Swedish inheritance.</li>
+        <li>Late 1099-NECs for two contractors; Oregon and Arizona composites; Ada’s own return.</li>
+        <li>California AMT on the ISO exercise, not computed by the engine.</li>
+        <li>Prior preparer’s 2024 home office overstatement (300 vs 220 sq ft).</li></ul></section>
+    </div>`,
+
+  architecture: () => `
+    <div class="head"><span class="eyebrow">How it is built</span><h1>Architecture</h1>
+      <p class="lede">Everything runs in the browser as static files. Select a component to see what it does, or play one click through the system.</p></div>
+    <figure class="dia">${diagram()}</figure>
+    <section class="card detail" id="detail"></section>
+    <section class="card stepper">
+      <h2>What happens when the reviewer clicks Approve</h2>
+      <p class="now" id="now" aria-live="polite"></p>
+      <div class="ctrl"><button class="btn" id="prev">← Back</button><button class="btn primary" id="play">Play</button><button class="btn" id="next">Next →</button><div class="dots" id="dots"></div></div>
+    </section>`,
+
+  video: () => `
+    <div class="head"><span class="eyebrow">Deliverable 4</span><h1>Video walkthrough</h1>
+      <p class="lede">The prototype end to end, the technical decisions behind it, and the tradeoffs made while building it.</p></div>
+    ${VIDEO ? `<div class="callout"><b>Watch the walkthrough</b><a class="url" href="${esc(VIDEO)}" target="_blank" rel="noopener">${esc(VIDEO)}</a></div>`
+      : `<div class="video"><div><b style="color:var(--fg)">Video coming soon</b><br>The link will appear here.</div></div>`}
+    <section class="card"><h2>Chapters</h2><ol class="chapters">
+      <li><time>0:00</time><div>The problem<small>Proof kept apart from the numbers</small></div></li>
+      <li><time>0:45</time><div>Provenance<small>Click any number down to the document field</small></div></li>
+      <li><time>1:45</time><div>Independent checks<small>How the RSU basis and 1099-K errors surfaced</small></div></li>
+      <li><time>3:15</time><div>Roles and approvals<small>Reviewer, partner threshold, masked SSNs</small></div></li>
+      <li><time>4:30</time><div>Journal, sign-offs, season clock<small>Sign-offs reopening, live sync between tabs</small></div></li>
+      <li><time>5:45</time><div>Filing<small>Client approval, Form 8879, the SSN gate, freeze</small></div></li>
+      <li><time>6:45</time><div>Decisions and tradeoffs<small>No backend, no engine rerun, no build step</small></div></li>
+    </ol></section>`,
+};
+
+// ---------------------------------------------------------------- page behaviours
+const after = {
+  workpaper() {
+    const show = (id) => {
+      const r = ROLES.find(x => x.id === id);
+      document.getElementById('perm').innerHTML = r.can.map(c => `<li>${c}</li>`).join('') + r.cannot.map(c => `<li class="no">${c}</li>`).join('');
+      document.querySelectorAll('#roles button').forEach(b => b.setAttribute('aria-pressed', b.dataset.role === id));
+    };
+    document.getElementById('roles').onclick = (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.role); };
+    show('prep');
+  },
+  'core-idea'() {
+    const pill = (i) => {
+      document.getElementById('pillar').textContent = PILLARS[i][1];
+      document.querySelectorAll('[data-pillar]').forEach(b => b.setAttribute('aria-selected', b.dataset.pillar == i));
+    };
+    document.querySelector('.tabs').onclick = (e) => { const b = e.target.closest('button'); if (b) pill(+b.dataset.pillar); };
+    pill(0);
+    const layer = (k) => {
+      document.getElementById('fields').innerHTML = LAYERS[k].fields.map(([f, d]) => `<li><code>${esc(f)}</code><span>${esc(d)}</span></li>`).join('');
+      document.querySelectorAll('[data-layer]').forEach(b => b.setAttribute('aria-pressed', b.dataset.layer === k));
+    };
+    document.getElementById('layers').onclick = (e) => { const b = e.target.closest('button'); if (b) layer(b.dataset.layer); };
+    layer('journal');
+    const box = document.getElementById('events');
+    box.onchange = renderFold;
+    renderFold();
+  },
+  errors() {
+    const st = { j: 'fed', k: 'all', s: 'n', q: '', open: null };
+    const seg = (id, key, attr) => document.getElementById(id).onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      st[key] = b.dataset[attr];
+      document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute('aria-pressed', x === b));
+      draw();
+    };
+    seg('jur', 'j', 'j'); seg('kind', 'k', 'k'); seg('sort', 's', 's');
+    document.getElementById('q').oninput = (e) => { st.q = e.target.value.toLowerCase(); draw(); };
+    document.getElementById('list').onclick = (e) => {
+      const b = e.target.closest('.err > button'); if (!b) return;
+      const n = +b.parentElement.dataset.n; st.open = st.open === n ? null : n; draw();
+    };
+    const draw = () => { chart(st); list(st); };
+    draw();
+  },
+  architecture() {
+    document.querySelector('.dia svg').addEventListener('click', (e) => { const g = e.target.closest('.node'); if (g) select(g.dataset.id); });
+    document.querySelector('.dia svg').addEventListener('keydown', (e) => { const g = e.target.closest('.node'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(g.dataset.id); } });
+    select('ctx');
+    let i = 0, timer = null;
+    const dots = document.getElementById('dots');
+    dots.innerHTML = STEPS.map((_, k) => `<button aria-label="Step ${k + 1}" data-k="${k}"></button>`).join('');
+    const go = (k) => { i = (k + STEPS.length) % STEPS.length; step(i); };
+    const stop = () => { clearInterval(timer); timer = null; document.getElementById('play').textContent = 'Play'; };
+    dots.onclick = (e) => { const b = e.target.closest('button'); if (b) { stop(); go(+b.dataset.k); } };
+    document.getElementById('prev').onclick = () => { stop(); go(i - 1); };
+    document.getElementById('next').onclick = () => { stop(); go(i + 1); };
+    document.getElementById('play').onclick = () => {
+      if (timer) return stop();
+      document.getElementById('play').textContent = 'Pause';
+      timer = setInterval(() => { if (i === STEPS.length - 1) return stop(); go(i + 1); }, 2200);
+      after._stop = stop;
+    };
+    after._stop = stop;
+    step(0);
+  },
+};
+
+// Fold demo
+function renderFold() {
+  const on = new Set([...document.querySelectorAll('#events input:checked')].map(x => +x.dataset.ev));
+  document.querySelectorAll('#events label').forEach(l => l.classList.toggle('off', !l.querySelector('input').checked));
+  const adj = {}; let signoff = null;
+  for (const e of DEMO) {
+    if (!on.has(e.id)) continue;
+    if (e.type === 'propose') adj[e.adj] = { fed: e.fed, status: 'proposed', approvals: [] };
+    if (e.type === 'approve' && adj[e.adj]) { adj[e.adj].approvals.push(e.level); if (e.level === 'partner' || Math.abs(adj[e.adj].fed) <= 1000) adj[e.adj].status = 'approved'; }
+    if (e.type === 'signoff') signoff = JSON.stringify(adj);
+  }
+  const fp = JSON.stringify(adj);
+  const tax = 81962 + Object.values(adj).reduce((s, a) => s + a.fed, 0);
+  const so = signoff == null ? ['Not signed', ''] : signoff === fp ? ['Fresh', 'ok'] : ['Reopened · adjustments changed after sign-off', 'warn'];
+  const row = (k, label) => adj[k] ? `<span>${label}</span><span class="pill ${adj[k].status === 'approved' ? 'ok' : 'prop'}">${adj[k].status}${adj[k].status === 'proposed' && adj[k].approvals.length ? ' · needs partner' : ''}</span>` : `<span>${label}</span><span class="pill">none</span>`;
+  document.getElementById('foldout').innerHTML = `
+    <div><small style="color:var(--muted)">Federal total tax (workpaper)</small><div class="big">${tax.toLocaleString('en-US')}</div><small style="color:var(--muted)">Engine v3: 81,962 · change <span class="${cls(tax - 81962)}">${fmt(tax - 81962)}</span></small></div>
+    <div class="kv">${row('rsu', 'RSU basis adjustment')}${row('c6', 'Crypto C6 adjustment')}<span>Investments sign-off</span><span class="pill ${so[1]}">${so[0]}</span></div>`;
+}
+
+// Errors chart
+function chart(st) {
+  const el = document.getElementById('chart');
+  const data = ERRORS.filter(e => e[st.j]).filter(e => st.k === 'all' || e.kind === st.k).sort((a, b) => a[st.j] - b[st.j]);
+  const tip = el.querySelector('.tip');
+  el.querySelectorAll('svg').forEach(s => s.remove());
+  if (!data.length) { el.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 600 40"><text x="0" y="24" class="lbl">No tax effect in this filter.</text></svg>'); return; }
+  const W = 760, L = 170, R = 70, rowH = 26, top = 8, H = top + data.length * rowH + 26;
+  const max = Math.max(...data.map(d => Math.abs(d[st.j])));
+  const lo = Math.min(0, ...data.map(d => d[st.j])), hi = Math.max(0, ...data.map(d => d[st.j]));
+  const span = (hi - lo) || 1;
+  const x = (v) => L + (v - lo) / span * (W - L - R);
+  const x0 = x(0);
+  const step = max > 8000 ? 5000 : max > 2000 ? 1000 : max > 500 ? 250 : 50;
+  const ticks = []; for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) ticks.push(t);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${st.j === 'fed' ? 'Federal' : 'California'} tax effect of each issue, in dollars">`;
+  svg += ticks.map(t => `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${H - 20}"/><text class="lbl" x="${x(t)}" y="${H - 6}" text-anchor="middle">${t === 0 ? '0' : fmt(t)}</text>`).join('');
+  data.forEach((d, i) => {
+    const v = d[st.j], y = top + i * rowH, bx = Math.min(x(v), x0), bw = Math.max(2, Math.abs(x(v) - x0));
+    svg += `<g data-n="${d.n}"><rect class="hit" x="0" y="${y}" width="${W}" height="${rowH}" rx="4"/>
+      <text class="lbl" x="${L - 10}" y="${y + 17}" text-anchor="end">${esc(d.short)}</text>
+      <rect class="${v > 0 ? 'bar-up' : 'bar-down'}" x="${bx}" y="${y + 6}" width="${bw}" height="${rowH - 12}" rx="3" style="pointer-events:none"/>
+      ${bw > 80
+        ? `<text class="val in" x="${v > 0 ? x(v) - 8 : x(v) + 8}" y="${y + 17}" text-anchor="${v > 0 ? 'end' : 'start'}" style="pointer-events:none">${fmt(v)}</text>`
+        : `<text class="val" x="${v > 0 ? x(v) + 6 : x(v) - 6}" y="${y + 17}" text-anchor="${v > 0 ? 'start' : 'end'}" style="pointer-events:none">${fmt(v)}</text>`}</g>`;
+  });
+  svg += `<line class="axis" x1="${x0}" x2="${x0}" y1="${top}" y2="${H - 20}"/></svg>`;
+  el.insertAdjacentHTML('beforeend', svg);
+  const s = el.querySelector('svg');
+  s.onmousemove = (e) => {
+    const g = e.target.closest('g[data-n]'); if (!g) { tip.style.opacity = 0; return; }
+    const d = ERRORS.find(x => x.n == g.dataset.n);
+    tip.innerHTML = `<b>#${d.n} ${esc(d.title)}</b><br>Federal ${fmt(d.fed)} · California ${fmt(d.ca)}`;
+    const r = el.getBoundingClientRect();
+    tip.style.left = Math.min(e.clientX - r.left + el.scrollLeft + 12, el.scrollWidth - 270) + 'px';
+    tip.style.top = (e.clientY - r.top + 12) + 'px'; tip.style.opacity = 1;
+  };
+  s.onmouseleave = () => tip.style.opacity = 0;
+  s.onclick = (e) => {
+    const g = e.target.closest('g[data-n]'); if (!g) return;
+    document.querySelector(`.err[data-n="${g.dataset.n}"] > button`)?.click();
+    document.querySelector(`.err[data-n="${g.dataset.n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
+
+function list(st) {
+  let data = ERRORS.filter(e => st.k === 'all' || e.kind === st.k)
+    .filter(e => !st.q || (e.title + ' ' + e.what + ' ' + e.how).toLowerCase().includes(st.q));
+  if (st.s === 'fx') data = data.slice().sort((a, b) => (Math.abs(b.fed) + Math.abs(b.ca)) - (Math.abs(a.fed) + Math.abs(a.ca)));
+  document.getElementById('list').innerHTML = data.map(e => `
+    <article class="err" data-n="${e.n}" data-open="${st.open === e.n}">
+      <button aria-expanded="${st.open === e.n}"><span class="k">${e.n}</span><span class="t">${esc(e.title)}<small>${KIND[e.kind]}</small></span>
+        <span class="fx">${e.pay ? esc(e.pay) : `Fed <span class="${cls(e.fed)}">${e.fed ? fmt(e.fed) : '—'}</span> · CA <span class="${cls(e.ca)}">${e.ca ? fmt(e.ca) : '—'}</span>`}</span></button>
+      ${st.open === e.n ? `<div class="body"><p><b>What was wrong.</b> ${esc(e.what)}</p><p><b>How it surfaced.</b> ${esc(e.how)}</p></div>` : ''}
+    </article>`).join('') || '<p style="color:var(--muted)">No issues match.</p>';
+}
+
+// Architecture diagram
+const NODES = {
+  packet: ['Packet JSON', 'The pipeline output: documents, extracted values, three engine versions, timeline, agency records and prior years. Loaded exactly as delivered and never written to.'],
+  docs: ['DocumentSource', 'Draws each document page for the viewer from its printed text, in Text or Layout mode. Real scans can be registered and the same highlight boxes sit over the image.'],
+  index: ['data.js · buildIndex', 'Builds lookups once at load: one resolver for every reference format, and a reverse map from any document to every line it landed on.'],
+  checks: ['checks.js · runChecks', 'Thirty independent checks that recompute figures from raw records. Each disagreement becomes a finding with evidence and a proposed adjustment.'],
+  bc: ['BroadcastChannel', 'Sends new events and presence to other open tabs, so two people on the same machine see each other’s work live.'],
+  ctx: ['model.js · buildContext', 'The heart of the app. Folds the journal over the packet, picks the return version for the chosen date, prices adjustments, compares sign-off fingerprints, and works out what blocks filing.'],
+  journal: ['journal.js · Journal', 'The append-only event log. Every human action is an event with sequence, actor and season date. Undo is just another event.'],
+  ls: ['localStorage', 'Where the events are saved, so nothing is lost on reload.'],
+  idb: ['IndexedDB', 'Where attached files are saved.'],
+  app: ['app.js · render()', 'The shell: router, role switcher and season clock. Calls buildContext with the chosen date and person, then draws the page.'],
+  views: ['views/ · 8 modules', 'Overview, trace, findings, schedules, people, filing, firm, client and examiner screens. They only read the context; SSNs are masked unless the person is cleared.'],
+  actions: ['A.* actions', 'Every button lands here. Each action checks the person’s role first, then appends an event.'],
+  user: ['Person in a role', 'One of eight people: preparer, reviewer, partner, preparer without clearance, administrator, quality reviewer, client or IRS examiner.'],
+};
+const STEPS = [
+  { t: '<b>Daniel clicks Approve</b> on the RSU basis adjustment.', n: ['user'], a: ['a-click'] },
+  { t: '<b>The action checks his role.</b> Reviewers may approve, but not their own work, and changes over $1,000 still need the partner.', n: ['actions'], a: [] },
+  { t: '<b>An event is appended</b> to the journal: adjust.approve, with sequence, actor and season date.', n: ['journal'], a: ['a-append'] },
+  { t: '<b>The event is saved</b> to localStorage and sent to any other open tab.', n: ['ls', 'bc'], a: ['a-save', 'a-sync'] },
+  { t: '<b>The app is notified</b> and calls render(), here and in the other tabs.', n: ['app'], a: ['a-notify'] },
+  { t: '<b>buildContext refolds</b> every event over the packet and reprices the adjustment at the version’s tax rates.', n: ['ctx'], a: ['a-fold', 'a-date'] },
+  { t: '<b>Every view redraws.</b> Sign-offs whose fingerprint covered the changed lines now show as reopened.', n: ['views'], a: ['a-ctx', 'a-draws', 'a-sees'] },
+];
+function select(id) {
+  document.querySelectorAll('.node').forEach(n => n.classList.toggle('sel', n.dataset.id === id));
+  const [t, d] = NODES[id];
+  document.getElementById('detail').innerHTML = `<span class="eyebrow">Selected component</span><h3>${esc(t)}</h3><p style="color:var(--fg2);font-size:14.5px">${esc(d)}</p>`;
+}
+function step(i) {
+  const s = STEPS[i];
+  document.querySelectorAll('.node').forEach(n => n.classList.toggle('lit', s.n.includes(n.dataset.id)));
+  document.querySelectorAll('.ar').forEach(a => a.classList.toggle('lit', s.a.includes(a.id)));
+  document.getElementById('now').innerHTML = `<span class="eyebrow">Step ${i + 1} of ${STEPS.length}</span><br>${s.t}`;
+  document.querySelectorAll('#dots button').forEach((b, k) => k === i ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current'));
+}
+function diagram() {
+  const box = (id, x, y, w, h, lines) => `<g class="node" data-id="${id}" tabindex="0" role="button" aria-label="${esc(NODES[id][0])}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>${lines.map((l, i) => `<text class="${i ? 's' : 't'}" x="${x + 14}" y="${y + 22 + i * 18 + (i ? 2 : 0)}">${esc(l)}</text>`).join('')}</g>`;
+  const ar = (id, d, label, lx, ly, anchor = 'middle', two = false) => `<path id="${id}" class="ar" d="${d}" marker-end="url(#ah)"${two ? ' marker-start="url(#ah)"' : ''}/>${label ? `<text class="lb" x="${lx}" y="${ly}" text-anchor="${anchor}">${label}</text>` : ''}`;
+  return `<svg viewBox="0 0 1160 610" role="img" aria-label="Architecture: packet and checks feed buildContext, which folds the event journal into what the views draw. Clicks pass a role check and append to the journal, which saves, syncs and triggers a redraw.">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text class="h" x="120" y="52" text-anchor="middle">INPUTS · READ-ONLY</text>
+    <text class="h" x="400" y="52" text-anchor="middle">DERIVED ON EVERY RENDER</text>
+    <text class="h" x="705" y="52" text-anchor="middle">STATE</text>
+    <text class="h" x="1020" y="52" text-anchor="middle">SCREEN</text>
+    ${box('packet', 20, 80, 200, 130, ['Packet JSON', 'documents, extracted values', 'return versions v1–v3', 'timeline, agency records', 'loaded as delivered'])}
+    ${box('docs', 20, 290, 200, 92, ['DocumentSource', 'page images for the viewer', 'Text and Layout modes', 'or real scans'])}
+    ${box('index', 290, 80, 220, 80, ['data.js · buildIndex', 'every ref → its source field', 'lines per version, used-by'])}
+    ${box('checks', 290, 200, 220, 100, ['checks.js · runChecks', '30 independent recomputes', 'from source records', '→ findings + proposed fixes'])}
+    ${box('bc', 290, 470, 220, 70, ['BroadcastChannel', 'events + presence', '⇄ other open tabs'])}
+    ${box('ctx', 580, 80, 250, 180, ['model.js · buildContext', 'fold(journal) → current state', 'return version as of the date', 'adjusted totals + tax effect', 'fingerprints → sign-offs', 'blockers → filing gate', 'role → permissions, masking'])}
+    ${box('journal', 580, 330, 250, 90, ['journal.js · Journal', 'append-only event log', 'undo is another event', '{seq, actor, clock, type}'])}
+    ${box('ls', 580, 480, 120, 56, ['localStorage', 'the events'])}
+    ${box('idb', 710, 480, 120, 56, ['IndexedDB', 'attached files'])}
+    ${box('app', 900, 80, 240, 80, ['app.js · render()', 'router, role switcher', 'season clock'])}
+    ${box('views', 900, 190, 240, 170, ['views/ · 8 modules', 'overview, trace inspector', 'findings, schedules', 'people, filing, firm', 'client portal, examiner', '', 'SSNs masked unless cleared'])}
+    ${box('actions', 900, 400, 200, 80, ['A.* actions', 'can(role, permission)', 'partner rule over $1,000'])}
+    ${box('user', 900, 530, 240, 56, ['Person in a role', 'eight roles via the switcher'])}
+    ${ar('a-parse', 'M220,120 H286', 'parse', 253, 112)}
+    ${ar('a-text', 'M120,210 V286', 'document text', 128, 252, 'start')}
+    ${ar('a-index', 'M400,160 V196', 'index', 408, 183, 'start')}
+    ${ar('a-idx2', 'M510,110 H576', 'index', 545, 102)}
+    ${ar('a-find', 'M510,245 H576', 'findings', 545, 237)}
+    ${ar('a-fold', 'M705,330 V264', 'all events', 713, 302, 'start')}
+    ${ar('a-ctx', 'M830,105 H896', 'ctx', 865, 97)}
+    ${ar('a-date', 'M900,135 H834', 'date, role', 865, 127)}
+    ${ar('a-draws', 'M1020,160 V186', 'draws', 1028, 178, 'start')}
+    ${ar('a-notify', 'M830,350 H870 V150 H896', 'notify', 864, 262, 'end')}
+    ${ar('a-append', 'M900,410 H834', 'append', 865, 402)}
+    ${ar('a-click', 'M990,530 V484', 'click', 998, 512, 'start')}
+    ${ar('a-sees', 'M1120,360 V526', 'sees', 1126, 450, 'start')}
+    ${ar('a-save', 'M640,424 V476', 'save / load', 648, 455, 'start', true)}
+    ${ar('a-files', 'M770,420 V476', 'files', 778, 455, 'start')}
+    ${ar('a-sync', 'M576,400 H545 V505 H514', 'sync', 551, 455, 'start', true)}
+  </svg>`;
+}
+
+// ---------------------------------------------------------------- router
+function route() {
+  after._stop?.(); after._stop = null;
+  const id = PAGES.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  const i = PAGES.indexOf(id);
+  const prev = PAGES[i - 1], next = PAGES[i + 1];
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="page">${views[id]()}</div>
+    <nav class="pager" aria-label="Previous and next">
+      ${prev ? `<a href="#${prev}"><small>← Previous</small>${TITLES[prev]}</a>` : ''}
+      ${next ? `<a class="next" href="#${next}"><small>Next →</small>${TITLES[next]}</a>` : ''}
+    </nav>`;
+  after[id]?.();
+  document.querySelectorAll('nav.top a').forEach(a => a.getAttribute('href') === '#' + id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  if (route.ran) { window.scrollTo(0, 0); main.focus({ preventScroll: true }); }
+  route.ran = true;
+}
+window.addEventListener('hashchange', route);
+route();
+</script>

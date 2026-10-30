@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+server/data/
+docs/_render.pdf
+.DS_Store

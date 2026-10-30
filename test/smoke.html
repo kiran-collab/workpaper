@@ -1,0 +1,19 @@
+<!doctype html><meta charset="utf-8"><body><pre id="out">running</pre>
+<script type="module">
+const routes = ['#/','#/findings','#/findings?show=all','#/findings?show=passed','#/adjustments','#/people','#/filing','#/docs','#/docs/D23/3','#/docs/D62/1?mode=layout&ev=ev-1045','#/docs/D30/32','#/trace/SchC.1','#/trace/F1040.24','#/trace/ev-0016','#/versions','#/versions?a=v1&b=v3','#/judgment','#/notice','#/nextyear','#/copy','#/firm','#/firm?t=time','#/firm?t=access','#/firm?t=views','#/firm?t=status','#/firm?t=data','#/activity',
+ ...['intake','wages','payments','passthroughs','business','rentals','investments','retirement','deductions','california','tax'].map(a=>'#/area/'+a),
+ ...['taxcomp','sales','sales?flag=wash','depreciation','books','rentals','k1','retirement','deductions','payments','state','carryovers','basis','prior'].map(s=>'#/schedule/'+s)];
+const users = ['st-01','st-02','st-03','st-04','st-05','st-06','cu-01','irs-exam'];
+const out=[]; const f=document.createElement('iframe'); f.style.width='1400px'; f.style.height='900px'; document.body.append(f);
+const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+async function load(user, clock){ sessionStorage.setItem('wp:user',user); if(clock) sessionStorage.setItem('wp:clock',clock); f.src='../index.html?t='+Math.random()+'#/'; await new Promise(r=>f.onload=r); for(let i=0;i<60;i++){ if(f.contentDocument.querySelector('#main')?.innerHTML) break; await wait(100);} f.contentWindow.onerror=(m,s,l,c,e)=>out.push('ERR '+m+' '+(e&&e.stack)); f.contentWindow.addEventListener('unhandledrejection',e=>out.push('REJ '+e.reason)); }
+for (const clock of ['2026-06-23T12:00:00Z','2026-03-20T00:00:00Z','2028-02-01T00:00:00Z']) {
+  await load('st-01', clock);
+  for (const r of routes) { f.contentWindow.location.hash=r; await wait(60); const m=f.contentDocument.querySelector('#main'); const h=m?.innerHTML||''; if(h.includes('Something went wrong')||h.length<50) out.push(`${clock} ${r}: `+(m?.innerText||'').slice(0,400)); }
+}
+for (const u of users) { await load(u,'2026-06-23T12:00:00Z'); await wait(100); const m=f.contentDocument.querySelector('#main'); if((m.innerHTML||'').includes('Something went wrong')) out.push(u+': '+m.innerText.slice(0,300)); }
+// inspector on several refs
+await load('st-01','2026-06-23T12:00:00Z');
+for (const ref of ['SchC.1','ev-0919','D30','qa-31','py:/carryovers_into_2025/capital_loss_short','asset:AUS-BLDG','household:theo','ref:fx.SEK.2024_average','agency:/ftb_account','F8949.H.C6']) { f.contentDocument.querySelector('#main').insertAdjacentHTML('beforeend',`<button id="tt" data-a="inspect" data-ref="${ref}">x</button>`); f.contentDocument.getElementById('tt').click(); await wait(40); const i=f.contentDocument.querySelector('#insp'); if(!i.classList.contains('open')||i.innerText.length<30||i.innerHTML.includes('Error')) out.push('INSP '+ref+': '+i.innerText.slice(0,200)); f.contentDocument.getElementById('tt').remove(); }
+document.getElementById('out').textContent = 'DONE\n'+(out.join('\n')||'no errors');
+</script>
