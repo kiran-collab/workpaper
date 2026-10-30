@@ -1,6 +1,6 @@
 # Errors found in the packet, and how the design surfaced them
 
-Each error below is caught by an independent check in `js/checks.js`. The check recomputes the
+Each error below is caught by an independent check in `src/workpaper/checks.py`. The check recomputes the
 figure from source records and shows the result as a **finding**. A finding carries:
 
 - the engine value and the expected value

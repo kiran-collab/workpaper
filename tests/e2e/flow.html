@@ -1,0 +1,56 @@
+<!doctype html><meta charset="utf-8"><body><pre id="out">running</pre>
+<script type="module">
+const APP = new URLSearchParams(location.search).get('app') || '../../web/index.html'; // static: repo root; server: /index.html
+const log=[]; const f=document.createElement('iframe'); f.style.cssText='width:1400px;height:900px'; document.body.append(f);
+const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+localStorage.clear(); sessionStorage.setItem('wp:user','st-01'); sessionStorage.setItem('wp:clock','2026-07-13T19:30:00Z');
+f.src=APP+'?t=1#/'; for(let i=0;i<200&&!f.contentWindow?.__wp;i++) await wait(100); // poll: a live server stream can hold back the load event
+const W=f.contentWindow.__wp, D=f.contentDocument;
+f.contentWindow.onerror=(m,s,l,c,e)=>log.push('ERR '+m+' '+(e&&e.stack));
+const toast=()=>D.getElementById('toast').textContent;
+const as=(u)=>{ W.S.userId=u; W.render(); };
+async function run(name, data={}, fill={}) { W.A[name](data, {value:fill.__value, checked:fill.__checked}); await wait(20); const dlg=D.getElementById('dlg'); if(dlg.open){ const form=dlg.querySelector('form'); for(const [k,v] of Object.entries(fill)){ if(k.startsWith('__')) continue; const el=form.elements[k]; if(!el) continue; if(el.type==='checkbox') el.checked=!!v; else el.value=v; } form.querySelectorAll('[required]').forEach(el=>{ if(el.type==='checkbox') el.checked=true; else if(!el.value) el.value = el.pattern ? '12345' : 'test'; }); form.requestSubmit(); await wait(30);} }
+const ctx=()=>W.ctx;
+// 1. propose all finding adjustments
+for (const fd of ctx().findings.filter(x=>x.adjustments?.length)) await run('proposeFinding',{id:fd.id});
+const adjs=[...ctx().state.adjustments.values()];
+log.push(`proposed ${adjs.length}; partner-required ${adjs.filter(a=>a.requiresPartner).length}`);
+const s=ctx().adjusted; log.push(`workpaper fed tax ${s.fed.total_tax} (engine ${ctx().v.summary.federal.total_tax}) bal ${s.fed.balance_due}; CA tax ${s.ca.total_tax} bal ${s.ca.balance_due}`);
+// 2. self-approval blocked
+await run('approveAdj',{id:adjs[0].id}); log.push('self-approve toast: '+toast());
+// 3. reviewer approves all
+as('st-02'); for (const a of adjs) W.S.selected.add(a.id); await run('bulkApprove');
+log.push('after reviewer: '+JSON.stringify([...ctx().state.adjustments.values()].reduce((m,a)=>(m[a.status]=(m[a.status]||0)+1,m),{})));
+as('st-03'); for (const a of [...ctx().state.adjustments.values()].filter(a=>a.status==='proposed')) W.S.selected.add(a.id); await run('bulkApprove');
+log.push('after partner: '+JSON.stringify([...ctx().state.adjustments.values()].reduce((m,a)=>(m[a.status]=(m[a.status]||0)+1,m),{})));
+// 4. preparer resolves remaining findings
+as('st-01');
+for (const fd of ctx().findings) { if (fd.textFix && fd.textFix.to) await run('fixText',{id:fd.id}); }
+for (const fd of ctx().findings.filter(x=>x.kind!=='pass')) { const st=f.contentWindow.__wp.ctx && W.ctx; }
+const M = await import(new URL('js/model.js', new URL(APP, location.href)).href);
+for (const fd of M.openFindings(ctx())) if (!fd.fixHousehold) await run('findingStatus',{id:fd.id,status:'accepted'},{reason:'Reviewed; documented'});
+log.push('open findings left: '+M.openFindings(ctx()).map(x=>x.id).join(','));
+for (const st of ['Identity verified','Prior-year return reviewed']) await run('step',{step:st},{note:'done'});
+for (const q of M.DD_QUESTIONS) await run('dd',{q:q.id},{__checked:true});
+for (const k of ['SchD.6','SchD.14','F8582.1c','F8606.2','F7203.1']) await run('verify',{target:k},{method:'agreed_to_prior_year'});
+for (const k of ['F1040.26','F540NR.72']) await run('verify',{target:k},{method:'agreed_to_third_party_record'});
+for (const v of M.variances(ctx()).filter(v=>v.flagged)) await run('note',{kind:'variance',ref:v.key},{text:'Explained: move, new job, sale'});
+for (const d of [...ctx().idx.docs.values()]) if (M.docStatus(ctx(),d).code==='unaccounted') await run('disposition',{doc:d.id},{reason:'reviewed'});
+// 5. sign-offs
+for (const a of M.AREAS.filter(a=>M.areaLines(ctx(),a.id).length)) await run('signoff',{scope:a.id,level:'preparer'});
+as('st-02'); for (const a of M.AREAS.filter(a=>M.areaLines(ctx(),a.id).length)) await run('signoff',{scope:a.id,level:'reviewer'});
+as('st-03'); await run('signoff',{scope:'return',level:'partner'}); log.push('partner signoff: '+M.signoffStatus(ctx(),'return','partner').state+' / '+toast());
+await run('presentToClient'); as('cu-01'); await run('clientApprove'); await run('sign8879');
+log.push('steps open: '+M.steps(ctx()).filter(s=>!s.ok).map(s=>s.name).join('; '));
+// 6. transmit → rejected on Theo SSN
+as('st-03'); await run('transmit'); log.push('transmit1: '+toast()+' subs='+ctx().state.filing.submissions.map(s=>s.result).join(','));
+as('st-01'); await run('fixHousehold',{id:'F-DEP-SSN-theo'});
+as('st-03'); await run('transmit'); log.push('transmit2: '+toast()+' frozen='+!!ctx().state.filing.frozen);
+// 7. frozen → adjustments blocked
+as('st-01'); await run('manualAdjust',{key:'SchC.8'}); log.push('after freeze adjust: '+toast());
+// 8. staleness: sign-off reopens on change → test with undo of an approval? check areas fresh
+log.push('reviewer fresh areas: '+M.AREAS.filter(a=>M.signoffStatus(ctx(),a.id,'reviewer').state==='fresh').length);
+// 9. masked data for Marcus
+as('st-04'); W.S.inspect='household:theo'; W.render(); log.push('marcus sees: '+D.getElementById('insp').innerText.match(/SSN[^\n]*/)?.[0]);
+document.getElementById('out').textContent='DONE\n'+log.join('\n');
+</script>

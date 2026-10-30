@@ -24,6 +24,10 @@ The rest follows from those three parts:
 - **Freeze at filing** is a stored fingerprint.
 - **Amendments** are events layered on top of the frozen return.
 - **Season replay** is the same fold, run at a different clock.
+- **AI agents** are two more members of staff. A Claude preparer proposes findings and a Claude
+  reviewer tries to refute them. Their work is events in the same journal, under the same
+  permission rules, with citations and arithmetic validated by the server. A person adopts what they
+  propose.
 
 ## Data model
 
@@ -45,7 +49,7 @@ Journal (append-only events: {id, seq, at, clock, actor, batch, type, payload})
   household.fix · text.fix · filing.present/client_approve/sign8879/submit/freeze/amend · undo
 
 Derived (pure functions, recomputed on every change)
-  findings = runChecks(packet, version, clock)
+  findings = run_checks(packet, version, clock)   src/workpaper/checks.py; the app reads them (web/data/findings.json, or live from the server)
   lineView(key) = engine value + latest active adjustment (original always kept)
   adjusted summary = engine summary + Σ(change × version per-dollar rate)
   signoff state = stored fingerprint vs current fingerprint → fresh | reopened (with reason)
@@ -88,6 +92,11 @@ numbers. Every unmasked view is journaled.
   changes to every browser. The event model did not change.
 - **No engine rerun.** The tax effect is change × rate, labelled as an estimate everywhere it
   appears. Engine what-if results are used where they exist.
-- **No build step, no dependencies.** The app is vanilla ES modules, so the packet loads as
-  delivered and the folder deploys as-is. The cost is hand-rolled rendering: string templates and
-  one delegated event handler.
+- **Checks in Python, app in plain JavaScript.**
+  - The 30 checks live in one place, `src/workpaper/checks.py`. The server runs them live.
+  - For a plain static link, `workpaper build-findings` saves their findings across the whole season
+    to `web/data/findings.json`, and a test fails if that file is ever out of date.
+  - The app itself is vanilla ES modules with no dependencies, so the packet loads as delivered and
+    the folder deploys as-is.
+  - The cost is hand-rolled rendering (string templates and one delegated event handler), plus that
+    one Python build step.

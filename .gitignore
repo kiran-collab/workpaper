@@ -1,5 +1,12 @@
 .venv/
 __pycache__/
-server/data/
-docs/_render.pdf
+*.egg-info/
+build/
+var/
 .DS_Store
+.env
+.env.*
+!.env.example
+docs/Workpaper_Walkthrough.pptx
+docs/VIDEO_SCRIPT.md
+docs/submission.html

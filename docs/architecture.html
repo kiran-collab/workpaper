@@ -96,7 +96,7 @@ td:first-child { white-space: nowrap; font-family: var(--mono); font-size: 13px;
       <text class="s" x="304" y="140">lines per version, used-by</text>
 
       <rect class="bx" x="290" y="200" width="220" height="100" rx="4"/>
-      <text class="t" x="304" y="222">checks.js · runChecks</text>
+      <text class="t" x="304" y="222">checks.py · run_checks</text>
       <text class="s" x="304" y="242">30 checks recompute figures</text>
       <text class="s" x="304" y="260">from source records</text>
       <text class="s" x="304" y="280">→ findings + proposed fixes</text>
@@ -226,13 +226,13 @@ td:first-child { white-space: nowrap; font-family: var(--mono); font-size: 13px;
     <table>
       <thead><tr><th>File</th><th>Job</th></tr></thead>
       <tbody>
-        <tr><td>js/data.js</td><td>Load the packet, build the index, resolve any reference to its document field, walk line dependencies.</td></tr>
-        <tr><td>js/checks.js</td><td>Thirty independent recomputes (W-2s, 8949 lots, 1099-K, CA source wages, mileage, estimates, brackets). Each failure becomes a finding with evidence and a proposed adjustment.</td></tr>
-        <tr><td>js/journal.js</td><td>Append-only event log, undo/redo as events, localStorage, IndexedDB for files, BroadcastChannel sync, FNV hash for fingerprints.</td></tr>
-        <tr><td>js/model.js</td><td>Roles and permissions, the fold, the context, tax effects, sign-off status, readiness steps and filing blockers.</td></tr>
-        <tr><td>js/app.js</td><td>Shell, hash router, role switcher, season clock, one delegated click handler, every action, modals, toasts.</td></tr>
-        <tr><td>js/views/*</td><td>Overview, trace, findings, schedules, people, filing, firm, client and examiner screens. They only read ctx.</td></tr>
-        <tr><td>js/seed.js</td><td>Optional demo history, with sign-offs taken at v2 so they reopen at v3.</td></tr>
+        <tr><td>web/js/data.js</td><td>Load the packet, build the index, resolve any reference to its document field, walk line dependencies.</td></tr>
+        <tr><td>src/workpaper/checks.py</td><td>Thirty independent recomputes, in Python; the app reads their findings (findings.json, or live from the server) (W-2s, 8949 lots, 1099-K, CA source wages, mileage, estimates, brackets). Each failure becomes a finding with evidence and a proposed adjustment.</td></tr>
+        <tr><td>web/js/journal.js</td><td>Append-only event log, undo/redo as events, localStorage, IndexedDB for files, BroadcastChannel sync, FNV hash for fingerprints.</td></tr>
+        <tr><td>web/js/model.js</td><td>Roles and permissions, the fold, the context, tax effects, sign-off status, readiness steps and filing blockers.</td></tr>
+        <tr><td>web/js/app.js</td><td>Shell, hash router, role switcher, season clock, one delegated click handler, every action, modals, toasts.</td></tr>
+        <tr><td>web/js/views/*</td><td>Overview, trace, findings, schedules, people, filing, firm, client and examiner screens. They only read ctx.</td></tr>
+        <tr><td>web/js/seed.js</td><td>Optional demo history, with sign-offs taken at v2 so they reopen at v3.</td></tr>
       </tbody>
     </table>
     </div>
