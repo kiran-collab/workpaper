@@ -1,7 +1,7 @@
 # Common tasks. Run `make install` once, then the rest.
 PY := .venv/bin/python
 
-.PHONY: install serve static findings report test e2e lint check eval docker
+.PHONY: install serve static findings report test e2e lint check eval docker docker-run
 
 install:            ## create .venv and install the package with dev tools
 	python3 -m venv .venv && $(PY) -m pip install -e ".[dev]"
@@ -34,3 +34,6 @@ eval:               ## score the AI preparer blind (spends API credit)
 
 docker:             ## build the server image
 	docker build -t workpaper .
+
+docker-run: docker  ## run it on http://localhost:8002 (journal in a volume, key from .env)
+	docker run --rm -p 8002:8002 -v workpaper-data:/app/var --env-file .env workpaper

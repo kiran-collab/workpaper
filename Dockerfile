@@ -1,6 +1,7 @@
 # The server: app, shared journal and AI agents. Pass ANTHROPIC_API_KEY at run time to enable the agents.
 #   docker build -t workpaper .
-#   docker run -p 8002:8002 -v workpaper-data:/app/var -e ANTHROPIC_API_KEY workpaper
+#   docker run -p 8002:8002 -v workpaper-data:/app/var --env-file .env workpaper   (or: make docker-run)
+# The journal lives in the volume; without ANTHROPIC_API_KEY everything works except the AI agents.
 FROM python:3.12-slim
 
 WORKDIR /app
